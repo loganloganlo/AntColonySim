@@ -1,0 +1,34 @@
+# Build results
+/build/
+/Debug/
+/Release/
+/x64/
+/x86/
+*.obj
+*.exe
+*.pdb
+*.idb
+*.ilk
+*.dll
+*.lib
+*.log
+
+# Visual Studio files
+.vs/
+*.vcxproj.user
+
+# Other user-specific
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Backup/temporary
+*.tmp
+*.cache
+*.tlog
+*.log
+
+# Raylib generated cache
+*.o
+*.a
