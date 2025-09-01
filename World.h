@@ -36,6 +36,8 @@ public:
 
     // Spawning
     void AddEntity(Entity* e);
+    void SpawnPredatorOffScreen();
+
 
 private:
     int width;

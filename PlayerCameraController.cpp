@@ -7,16 +7,18 @@ PlayerCameraController::PlayerCameraController(int screenWidth, int screenHeight
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
-    moveSpeed = 5.0f;
+    moveSpeed = 400.0f;  // units per second
     zoomSpeed = 0.1f;
 }
 
 void PlayerCameraController::Update() {
-    // Camera movement with WASD
-    if (IsKeyDown(KEY_A)) camera.target.x -= moveSpeed / camera.zoom;
-    if (IsKeyDown(KEY_D)) camera.target.x += moveSpeed / camera.zoom;
-    if (IsKeyDown(KEY_W)) camera.target.y -= moveSpeed / camera.zoom;
-    if (IsKeyDown(KEY_S)) camera.target.y += moveSpeed / camera.zoom;
+    float dt = GetFrameTime();
+
+    // Camera movement with WASD (scaled by delta time)
+    if (IsKeyDown(KEY_A)) camera.target.x -= moveSpeed * dt / camera.zoom;
+    if (IsKeyDown(KEY_D)) camera.target.x += moveSpeed * dt / camera.zoom;
+    if (IsKeyDown(KEY_W)) camera.target.y -= moveSpeed * dt / camera.zoom;
+    if (IsKeyDown(KEY_S)) camera.target.y += moveSpeed * dt / camera.zoom;
 
     // Zoom with mouse wheel
     float wheel = GetMouseWheelMove();

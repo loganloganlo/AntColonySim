@@ -2,10 +2,10 @@
 #include "raylib.h"
 
 void Entity::Draw() const {
-    if (!alive) return;
+    // Default: generic circle
     DrawCircleV(pos, radius, color);
-    DrawText(TextFormat("HP:%d", hp), (int)(pos.x + radius + 4), (int)(pos.y - 10), 12, RED);
-    if (attack > 0) {
-        DrawText(TextFormat("ATK:%d", attack), (int)(pos.x + radius + 4), (int)(pos.y + 4), 10, DARKGRAY);
-    }
+
+    // Default: HP/ATK text (good for ants/predators)
+    DrawText(TextFormat("HP:%d", hp), pos.x - 20, pos.y - (radius + 20), 10, RED);
+    DrawText(TextFormat("ATK:%d", attack), pos.x - 20, pos.y - (radius + 10), 10, DARKGRAY);
 }

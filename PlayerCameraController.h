@@ -15,6 +15,6 @@ public:
 
 private:
     Camera2D camera;
-    float moveSpeed;
+    float moveSpeed;   // units per second
     float zoomSpeed;
 };

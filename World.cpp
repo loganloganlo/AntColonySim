@@ -159,3 +159,15 @@ void World::AddEntity(Entity* e) {
         nest = static_cast<Nest*>(e);
     }
 }
+
+void World::SpawnPredatorOffScreen() {
+    // Pick an off-screen spawn point
+    Vector2 spawn;
+    int side = GetRandomValue(0, 3);
+    if (side == 0) spawn = { -50, (float)GetRandomValue(0, height) }; // left
+    else if (side == 1) spawn = { (float)width + 50, (float)GetRandomValue(0, height) }; // right
+    else if (side == 2) spawn = { (float)GetRandomValue(0, width), -50 }; // top
+    else spawn = { (float)GetRandomValue(0, width), (float)height + 50 }; // bottom
+
+    AddEntity(new Predator(spawn, width, height));
+}

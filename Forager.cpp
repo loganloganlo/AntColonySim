@@ -2,17 +2,29 @@
 #include "World.h"
 #include "Nest.h"
 #include "Utils.h"
+#include "Config.h"
 #include "raylib.h"
+
+Forager::Forager(Vector2 pos)
+    : Entity(pos,
+        Config::ForagerRadius,
+        BROWN,
+        Config::ForagerHP,
+        Config::ForagerAttack,
+        Config::ForagerSpeed),
+    state(ForagerState::Searching),
+    carryingFood(false) {
+}
 
 void Forager::Update(World& world) {
     if (!IsAlive()) return;
 
+    float dt = GetFrameTime();
+
     if (state == ForagerState::Searching) {
-        // Look for nearest food and water
         Resource* food = world.FindClosestResource(pos, ResourceType::Food);
         Resource* water = world.FindClosestResource(pos, ResourceType::Water);
 
-        // Pick whichever is closer
         Resource* target = nullptr;
         float distFood = (food) ? DistanceSq(pos, food->GetPos()) : 1e9f;
         float distWater = (water) ? DistanceSq(pos, water->GetPos()) : 1e9f;
@@ -27,8 +39,8 @@ void Forager::Update(World& world) {
         }
         else if (target) {
             Vector2 dir = DirectionTo(pos, target->GetPos());
-            pos.x += dir.x * speed;
-            pos.y += dir.y * speed;
+            pos.x += dir.x * speed * dt;
+            pos.y += dir.y * speed * dt;
         }
     }
     else if (state == ForagerState::Returning) {
@@ -36,11 +48,11 @@ void Forager::Update(World& world) {
         if (!nest) return;
 
         Vector2 dir = DirectionTo(pos, nest->GetPos());
-        pos.x += dir.x * speed;
-        pos.y += dir.y * speed;
+        pos.x += dir.x * speed * dt;
+        pos.y += dir.y * speed * dt;
 
         if (CheckCollisionCircles(pos, radius, nest->GetPos(), nest->GetRadius())) {
-            world.AddFoodToNest(1); // Treat both food & water as resource points for now
+            world.AddFoodToNest(1);
             carryingFood = false;
             state = ForagerState::Searching;
         }
