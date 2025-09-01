@@ -8,4 +8,5 @@ public:
     void Update(World& world) override {
         // Larva do not move or act
     }
+    const char* GetType() const override { return "Larva"; }
 };

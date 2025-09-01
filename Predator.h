@@ -13,6 +13,7 @@ public:
     }
 
     void Update(World& world) override;
+    const char* GetType() const override { return "Predator"; }
 
 private:
     PredatorState state;

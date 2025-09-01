@@ -1,122 +1,53 @@
-#include "World.h"
-#include "Nest.h"
-#include "Forager.h"
 #include "Worker.h"
-#include "Predator.h"
-#include "Larva.h"
+#include "World.h"
 #include "Utils.h"
+#include "Nest.h"
 #include "raylib.h"
-#include <algorithm>
 
-World::World(int width, int height)
-    : width(width), height(height), nest(nullptr),
-    nestResources(0), nestLarvaCount(5) {
-}
+void Worker::Update(World& world) {
+    if (!IsAlive()) return;
 
-void World::Update() {
-    // Update entities
-    for (auto* e : entities) {
-        if (e->IsAlive()) {
-            e->Update(*this);
-        }
-    }
+    Nest* nest = world.GetNest();
+    Entity* predator = world.FindClosestPredator(pos);
 
-    // Update food
-    for (auto& f : foodNodes) {
-        f.Update();
-    }
+    // --- Chase predator if nearby ---
+    if (predator && Distance(pos, predator->GetPos()) < 250) {
+        Vector2 dir = DirectionTo(pos, predator->GetPos());
+        pos.x += dir.x * speed;
+        pos.y += dir.y * speed;
 
-    // Cleanup dead entities
-    entities.erase(std::remove_if(entities.begin(), entities.end(),
-        [](Entity* e) { return !e->IsAlive(); }),
-        entities.end());
-
-    // Cleanup collected food
-    foodNodes.erase(std::remove_if(foodNodes.begin(), foodNodes.end(),
-        [](const Food& f) { return !f.IsAlive(); }),
-        foodNodes.end());
-}
-
-void World::Draw() {
-    DrawRectangleLines(0, 0, width, height, LIGHTGRAY);
-
-    // Draw food
-    for (auto& f : foodNodes) {
-        f.Draw();
-    }
-
-    // Draw entities
-    for (auto* e : entities) {
-        e->Draw();
-    }
-}
-
-Nest* World::GetNest() {
-    return nest;
-}
-
-void World::AddFoodToNest(int amount) {
-    nestResources += amount;
-}
-
-Entity* World::FindClosestAnt(Vector2 pos) {
-    Entity* closest = nullptr;
-    float minDist = 1e9f;
-    for (auto* e : entities) {
-        if (!e->IsAlive()) continue;
-        // Ants are anything that is NOT a Predator
-        if (dynamic_cast<Predator*>(e)) continue;
-
-        float d = DistanceSq(pos, e->GetPos());
-        if (d < minDist) {
-            minDist = d;
-            closest = e;
-        }
-    }
-    return closest;
-}
-
-Entity* World::FindClosestPredator(Vector2 pos) {
-    Entity* closest = nullptr;
-    float minDist = 1e9f;
-    for (auto* e : entities) {
-        if (!e->IsAlive()) continue;
-        if (dynamic_cast<Predator*>(e)) {
-            float d = DistanceSq(pos, e->GetPos());
-            if (d < minDist) {
-                minDist = d;
-                closest = e;
+        if (CheckCollisionCircles(pos, radius, predator->GetPos(), predator->GetRadius())) {
+            predator->TakeDamage(attack);
+            if (predator->IsAlive()) {
+                TakeDamage(predator->GetAttack());
             }
         }
+        return;
     }
-    return closest;
-}
 
-Food* World::FindClosestFood(Vector2 pos) {
-    Food* closest = nullptr;
-    float minDist = 1e9f;
-    for (auto& f : foodNodes) {
-        if (!f.IsAlive()) continue;
-        float d = DistanceSq(pos, f.GetPos());
-        if (d < minDist) {
-            minDist = d;
-            closest = &f;
+    // --- Patrol system ---
+    if (nest) {
+        if (!hasPatrolTarget || Distance(pos, patrolTarget) < 10) {
+            // Pick new patrol target within 600 radius of nest
+            float angle = GetRandomValue(0, 360) * DEG2RAD;
+            float dist = (float)GetRandomValue(200, 600); // stay at least 200 away
+            patrolTarget = {
+                nest->GetPos().x + cosf(angle) * dist,
+                nest->GetPos().y + sinf(angle) * dist
+            };
+
+            // Clamp to world bounds so they don’t leave the map
+            if (patrolTarget.x < 0) patrolTarget.x = 0;
+            if (patrolTarget.y < 0) patrolTarget.y = 0;
+            if (patrolTarget.x > world.GetWidth()) patrolTarget.x = (float)world.GetWidth();
+            if (patrolTarget.y > world.GetHeight()) patrolTarget.y = (float)world.GetHeight();
+
+            hasPatrolTarget = true;
         }
-    }
-    return closest;
-}
 
-void World::SpawnFood(int count) {
-    for (int i = 0; i < count; i++) {
-        Vector2 pos = { (float)GetRandomValue(0, width - 10),
-                        (float)GetRandomValue(0, height - 10) };
-        foodNodes.emplace_back(pos, 8.0f);
-    }
-}
-
-void World::AddEntity(Entity* e) {
-    entities.push_back(e);
-    if (Nest* n = dynamic_cast<Nest*>(e)) {
-        nest = n;
+        // Move toward patrol target
+        Vector2 dir = DirectionTo(pos, patrolTarget);
+        pos.x += dir.x * speed;
+        pos.y += dir.y * speed;
     }
 }

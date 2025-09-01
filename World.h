@@ -1,7 +1,9 @@
 #pragma once
 #include <vector>
+#include <string>
 #include "Entity.h"
-#include "Food.h"
+#include "Resource.h"
+#include "ResourceSpawner.h"
 
 class Nest;
 
@@ -16,13 +18,23 @@ public:
     Nest* GetNest();
     void AddFoodToNest(int amount);
 
+    // Expose stats for HUD
+    int GetNestFood() const { return nestResources; }
+    int GetNestLarva() const { return nestLarvaCount; }
+
+    // Expose world size for clamping
+    int GetWidth() const { return width; }
+    int GetHeight() const { return height; }
+
+    // Buy ants with larva
+    bool TryBuyAnt(const std::string& type);
+
     // Find helpers
     Entity* FindClosestAnt(Vector2 pos);
     Entity* FindClosestPredator(Vector2 pos);
-    Food* FindClosestFood(Vector2 pos);
+    Resource* FindClosestResource(Vector2 pos, ResourceType type);
 
     // Spawning
-    void SpawnFood(int count);
     void AddEntity(Entity* e);
 
 private:
@@ -30,9 +42,12 @@ private:
     int height;
 
     std::vector<Entity*> entities;
-    std::vector<Food> foodNodes;
+    std::vector<Resource> resources;
+    ResourceSpawner spawner;
 
     Nest* nest;
-    int nestResources;
-    int nestLarvaCount;
+    int nestResources;   // Food storage
+    int nestLarvaCount;  // Spendable larva
+
+    float larvaTimer;    // Timer for passive larva generation
 };

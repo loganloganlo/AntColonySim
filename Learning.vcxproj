@@ -29,7 +29,11 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="Larva.h" />
     <ClInclude Include="Nest.h" />
+    <ClInclude Include="PlayerCameraController.h" />
     <ClInclude Include="Predator.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="ResourceSpawner.h" />
+    <ClInclude Include="ResourceType.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Worker.h" />
     <ClInclude Include="World.h" />
@@ -41,6 +45,7 @@
     <ClCompile Include="Larva.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Nest.cpp" />
+    <ClCompile Include="PlayerCameraController.cpp" />
     <ClCompile Include="Predator.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Worker.cpp" />

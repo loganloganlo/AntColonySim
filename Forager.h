@@ -14,6 +14,7 @@ public:
     }
 
     void Update(World& world) override;
+    const char* GetType() const override { return "Forager"; }
 
 private:
     ForagerState state;

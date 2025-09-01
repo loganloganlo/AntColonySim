@@ -50,6 +50,18 @@
     <ClInclude Include="World.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="PlayerCameraController.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceType.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceSpawner.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Entity.cpp">
@@ -80,6 +92,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="World.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerCameraController.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

@@ -8,14 +8,25 @@ void Forager::Update(World& world) {
     if (!IsAlive()) return;
 
     if (state == ForagerState::Searching) {
-        Food* food = world.FindClosestFood(pos);
-        if (food && Distance(pos, food->GetPos()) < radius + 4) {
-            food->Collect();
+        // Look for nearest food and water
+        Resource* food = world.FindClosestResource(pos, ResourceType::Food);
+        Resource* water = world.FindClosestResource(pos, ResourceType::Water);
+
+        // Pick whichever is closer
+        Resource* target = nullptr;
+        float distFood = (food) ? DistanceSq(pos, food->GetPos()) : 1e9f;
+        float distWater = (water) ? DistanceSq(pos, water->GetPos()) : 1e9f;
+
+        if (distFood < distWater) target = food;
+        else target = water;
+
+        if (target && Distance(pos, target->GetPos()) < radius + 4) {
+            target->Collect();
             carryingFood = true;
             state = ForagerState::Returning;
         }
-        else if (food) {
-            Vector2 dir = DirectionTo(pos, food->GetPos());
+        else if (target) {
+            Vector2 dir = DirectionTo(pos, target->GetPos());
             pos.x += dir.x * speed;
             pos.y += dir.y * speed;
         }
@@ -29,7 +40,7 @@ void Forager::Update(World& world) {
         pos.y += dir.y * speed;
 
         if (CheckCollisionCircles(pos, radius, nest->GetPos(), nest->GetRadius())) {
-            world.AddFoodToNest(1);
+            world.AddFoodToNest(1); // Treat both food & water as resource points for now
             carryingFood = false;
             state = ForagerState::Searching;
         }

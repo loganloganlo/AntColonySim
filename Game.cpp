@@ -3,6 +3,7 @@
 #include "Forager.h"
 #include "Worker.h"
 #include "Predator.h"
+#include "PlayerCameraController.h"
 
 Game::Game(int screenWidth, int screenHeight, const char* title, int targetFPS)
     : screenWidth(screenWidth), screenHeight(screenHeight), title(title), targetFPS(targetFPS),
@@ -11,18 +12,35 @@ Game::Game(int screenWidth, int screenHeight, const char* title, int targetFPS)
 
 void Game::Run() {
     Init();
+
+    PlayerCameraController camera(screenWidth, screenHeight);
+
     while (!WindowShouldClose()) {
+        // Input: buy ants with number keys
+        if (IsKeyPressed(KEY_ONE)) {
+            world.TryBuyAnt("Forager");
+        }
+        if (IsKeyPressed(KEY_TWO)) {
+            world.TryBuyAnt("Worker");
+        }
+        if (IsKeyPressed(KEY_THREE)) {
+            world.TryBuyAnt("Soldier");
+        }
+
+        camera.Update();
         world.Update();
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        BeginMode2D(camera);
+        camera.Begin();
         world.Draw();
-        EndMode2D();
+        camera.End();
 
+        camera.DrawHUD(world.GetNestFood(), world.GetNestLarva());
         EndDrawing();
     }
+
     Shutdown();
 }
 
@@ -30,18 +48,13 @@ void Game::Init() {
     InitWindow(screenWidth, screenHeight, title);
     SetTargetFPS(targetFPS);
 
-    camera.target = { screenWidth / 2.0f, screenHeight / 2.0f };
-    camera.offset = { screenWidth / 2.0f, screenHeight / 2.0f };
-    camera.rotation = 0.0f;
-    camera.zoom = 1.0f;
-
-    // Spawn world entities
+    // Spawn initial entities
     world.AddEntity(new Nest({ 200, 200 }));
-    world.AddEntity(new Forager({ 400, 300 }));
-    world.AddEntity(new Worker({ 450, 350 }));
-    world.AddEntity(new Predator({ 1000, 800 }));
+    world.AddEntity(new Forager({ 250, 200 }));
+    world.AddEntity(new Forager({ 220, 230 }));
+    world.AddEntity(new Worker({ 200, 210 }));
 
-    world.SpawnFood(30);
+    // Predators will be spawned later by progression logic
 }
 
 void Game::Shutdown() {
